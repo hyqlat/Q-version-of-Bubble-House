@@ -40,6 +40,7 @@ class Player:
                 self.right()
         else:
             print("unkonwn cmd!")
+        self.print_state()
 
     def up(self,):
         self.position[0] -= 1
