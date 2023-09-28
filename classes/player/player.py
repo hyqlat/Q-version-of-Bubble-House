@@ -26,21 +26,28 @@ class Player:
     
     #move
     def move(self, map, cmd):
+        ori_posi = None
         if cmd == 'up':
             if (self.position[0]-1 >= 0) and (map[self.position[0]-1, self.position[1]] != 0):
+                ori_posi = self.position.copy()#深拷贝问题
                 self.up()
         elif cmd == 'down':
             if (self.position[0]+1 < map.shape[0]) and (map[self.position[0]+1, self.position[1]] != 0):
+                ori_posi = self.position.copy()
                 self.down()
         elif cmd == 'left':
             if (self.position[1]-1 >= 0) and (map[self.position[0], self.position[1]-1] != 0):
+                ori_posi = self.position.copy()
                 self.left()
         elif cmd == 'right':
             if (self.position[1]+1 < map.shape[1]) and (map[self.position[0], self.position[1]+1] != 0):
+                ori_posi = self.position.copy()
                 self.right()
         else:
             print("unkonwn cmd!")
         self.print_state()
+        return ori_posi
+    
 
     def up(self,):
         self.position[0] -= 1

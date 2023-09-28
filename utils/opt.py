@@ -20,10 +20,10 @@ class Options:
         self.parser.add_argument('--map_dir', type=str,
                                  default='/media/mtz/076f660b-b7de-4646-833c-0b7466f35185/data_set/h3.6m/dataset/',
                                  help='path to dataset')
-        self.parser.add_argument('--row_num', type=int, default=40, help='map row number')
-        self.parser.add_argument('--col_num', type=int, default=40, help='map col number')
-        self.parser.add_argument('--win_height', type=int, default=1000, help='windows height')
-        self.parser.add_argument('--win_width', type=int, default=1000, help='windows width')
+        self.parser.add_argument('--row_num', type=int, default=20, help='map row number')
+        self.parser.add_argument('--col_num', type=int, default=20, help='map col number')
+        self.parser.add_argument('--win_height', type=int, default=200, help='windows height')
+        self.parser.add_argument('--win_width', type=int, default=200, help='windows width')
 
     def _print(self):
         print("\n==================Options=================")
