@@ -17,22 +17,29 @@ class Player:
         
         pass
 
+    def print_state(self,):
+        print('------------------------')
+        print('|当前位置：{}|'.format(self.position))
+        print('|当前方向：{}|'.format(self.direction))
+        print('------------------------')
+
     
     #move
     def move(self, map, cmd):
         if cmd == 'up':
             if (self.position[0]-1 >= 0) and (map[self.position[0]-1, self.position[1]] != 0):
                 self.up()
-        if cmd == 'down':
+        elif cmd == 'down':
             if (self.position[0]+1 < map.shape[0]) and (map[self.position[0]+1, self.position[1]] != 0):
                 self.down()
-        if cmd == 'left':
+        elif cmd == 'left':
             if (self.position[1]-1 >= 0) and (map[self.position[0], self.position[1]-1] != 0):
                 self.left()
-        if cmd == 'right':
+        elif cmd == 'right':
             if (self.position[1]+1 < map.shape[1]) and (map[self.position[0], self.position[1]+1] != 0):
                 self.right()
-        return
+        else:
+            print("unkonwn cmd!")
 
     def up(self,):
         self.position[0] -= 1
