@@ -16,6 +16,10 @@ COLOR_LIST = {
     'booming': QColor(128,128,128)
 }
 
+##临界区锁
+lock_changecolor = threading.Lock()
+
+
 class MyWindos(QMainWindow):
     def __init__(self, player_list, map_class, opt):
         super().__init__()
@@ -96,38 +100,52 @@ class MyWindos(QMainWindow):
             pass
     
     def booming_color(self, posi, expand_dist, color):
+        rec_boom_posi = [[posi[0], posi[1]]]#
         offset = np.array([-1,0,0], dtype=np.int32)
         for j in range(expand_dist):
             coor1 = posi + (j+1) * offset
             if (coor1[0] > 0) and (self.gmap_class.gmap[coor1[0], coor1[1]] == 1):
                 self.change_posicolor(coor1, color)
+                rec_boom_posi.append([coor1[0], coor1[1]])
 
         offset = np.array([1,0,0], dtype=np.int32)
         for j in range(expand_dist):
             coor1 = posi + (j+1) * offset
             if (coor1[0] < (self.gmap_class.gmap.shape[0]-1)) and (self.gmap_class.gmap[coor1[0], coor1[1]] == 1):
                 self.change_posicolor(coor1, color)
+                rec_boom_posi.append([coor1[0], coor1[1]])
 
         offset = np.array([0,-1,0], dtype=np.int32)
         for j in range(expand_dist):
             coor1 = posi + (j+1) * offset
             if (coor1[1] > 0) and (self.gmap_class.gmap[coor1[0], coor1[1]] == 1):
                 self.change_posicolor(coor1, color)
+                rec_boom_posi.append([coor1[0], coor1[1]])
 
         offset = np.array([0,1,0], dtype=np.int32)
         for j in range(expand_dist):
             coor1 = posi + (j+1) * offset
             if (coor1[1] < (self.gmap_class.gmap.shape[1]-1)) and (self.gmap_class.gmap[coor1[0], coor1[1]] == 1):
                 self.change_posicolor(coor1, color)
+                rec_boom_posi.append([coor1[0], coor1[1]])
+
+        return rec_boom_posi
 
 
     def weap_boom(self, posi, pid, expand_dist):
         self.change_posicolor(posi, COLOR_LIST['setboom'])#中心点放置炸弹
         time.sleep(1)
-        self.booming_color(posi, expand_dist, COLOR_LIST['booming'])#爆
+        rec_boom_posi = self.booming_color(posi, expand_dist, COLOR_LIST['booming'])#爆
         # print('boom!!!!', posi)
         time.sleep(0.5)
-        self.booming_color(posi, expand_dist, COLOR_LIST['path'])#恢复原来路径
+
+        
+        for posi_recover in rec_boom_posi:#不能删玩家在的颜色啊，线程通信 TODO:必须原子操作
+            ##临界区
+            self.change_posicolor(posi_recover, COLOR_LIST['path'])
+            ##
+
+        # self.booming_color(posi, expand_dist, COLOR_LIST['path'])#恢复原来路径
         # time.sleep(1)
         # self.change_posicolor(posi, COLOR_LIST['player{}'.format(pid)])
         
