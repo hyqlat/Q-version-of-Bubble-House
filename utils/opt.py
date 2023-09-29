@@ -22,8 +22,8 @@ class Options:
                                  help='path to dataset')
         self.parser.add_argument('--row_num', type=int, default=20, help='map row number')
         self.parser.add_argument('--col_num', type=int, default=20, help='map col number')
-        self.parser.add_argument('--win_height', type=int, default=200, help='windows height')
-        self.parser.add_argument('--win_width', type=int, default=200, help='windows width')
+        self.parser.add_argument('--win_height', type=int, default=1000, help='windows height')
+        self.parser.add_argument('--win_width', type=int, default=1000, help='windows width')
 
     def _print(self):
         print("\n==================Options=================")
