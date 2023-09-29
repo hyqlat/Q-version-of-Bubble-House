@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLa
 from PyQt5.QtGui import QPixmap, QPainter, QColor
 from PyQt5.QtCore import Qt
 import numpy as np
+import copy
 
 import threading
 import time
@@ -87,8 +88,8 @@ class MyWindos(QMainWindow):
             self.change_posicolor(self.player_list[0].position, COLOR_LIST['player{}'.format(pid)])#改新位置颜色
 
 
-    def kb_useweapon(self, pid):
-        weap, posi, dire, exp_dist = self.player_list[pid].weapon, self.player_list[pid].position, self.player_list[pid].direction, self.player_list[pid].expand_dist
+    def kb_useweapon(self, pid, weap, posi, dire, exp_dist):
+        # weap, posi, dire, exp_dist = self.player_list[pid].weapon, self.player_list[pid].position, self.player_list[pid].direction, self.player_list[pid].expand_dist
         if weap == 'boom':
             self.weap_boom(posi, pid, exp_dist) 
         else:
@@ -98,38 +99,37 @@ class MyWindos(QMainWindow):
         offset = np.array([-1,0,0], dtype=np.int32)
         for j in range(expand_dist):
             coor1 = posi + (j+1) * offset
-            if (coor1[0] > 0) and (self.gmap_class.gmap[coor1[0], coor1[1]] != 0):
+            if (coor1[0] > 0) and (self.gmap_class.gmap[coor1[0], coor1[1]] == 1):
                 self.change_posicolor(coor1, color)
 
         offset = np.array([1,0,0], dtype=np.int32)
         for j in range(expand_dist):
             coor1 = posi + (j+1) * offset
-            if (coor1[0] < (self.gmap_class.gmap.shape[0]-1)) and (self.gmap_class.gmap[coor1[0], coor1[1]] != 0):
+            if (coor1[0] < (self.gmap_class.gmap.shape[0]-1)) and (self.gmap_class.gmap[coor1[0], coor1[1]] == 1):
                 self.change_posicolor(coor1, color)
 
         offset = np.array([0,-1,0], dtype=np.int32)
         for j in range(expand_dist):
             coor1 = posi + (j+1) * offset
-            if (coor1[1] > 0) and (self.gmap_class.gmap[coor1[0], coor1[1]] != 0):
+            if (coor1[1] > 0) and (self.gmap_class.gmap[coor1[0], coor1[1]] == 1):
                 self.change_posicolor(coor1, color)
 
         offset = np.array([0,1,0], dtype=np.int32)
         for j in range(expand_dist):
             coor1 = posi + (j+1) * offset
-            if (coor1[1] < (self.gmap_class.gmap.shape[1]-1)) and (self.gmap_class.gmap[coor1[0], coor1[1]] != 0):
+            if (coor1[1] < (self.gmap_class.gmap.shape[1]-1)) and (self.gmap_class.gmap[coor1[0], coor1[1]] == 1):
                 self.change_posicolor(coor1, color)
 
 
     def weap_boom(self, posi, pid, expand_dist):
-        self.change_posicolor(posi, COLOR_LIST['setboom'])
+        self.change_posicolor(posi, COLOR_LIST['setboom'])#中心点放置炸弹
         time.sleep(1)
-        self.booming_color(posi, expand_dist, COLOR_LIST['booming'])
+        self.booming_color(posi, expand_dist, COLOR_LIST['booming'])#爆
         # print('boom!!!!', posi)
         time.sleep(0.5)
-        self.booming_color(posi, expand_dist, COLOR_LIST['path'])
-
-        time.sleep(1)
-        self.change_posicolor(posi, COLOR_LIST['player{}'.format(pid)])
+        self.booming_color(posi, expand_dist, COLOR_LIST['path'])#恢复原来路径
+        # time.sleep(1)
+        # self.change_posicolor(posi, COLOR_LIST['player{}'.format(pid)])
         
 
 
@@ -150,19 +150,20 @@ class MyWindos(QMainWindow):
                 cmd = 'down'
                 # self.kb_move_player(0, cmd)
 
-            # t1 = threading.Thread(target=self.kb_move_player, kwargs={'pid':0, 'cmd':cmd})
-            # t1.start()
-            # t1.join()
+            t1 = threading.Thread(target=self.kb_move_player, kwargs={'pid':0, 'cmd':cmd})
+            t1.start()
+            t1.join()
 
-            self.kb_move_player(pid=0, cmd=cmd)
+            # self.kb_move_player(pid=0, cmd=cmd)
 
 
         if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
-            # t2 = threading.Thread(target=self.kb_useweapon, kwargs={'pid':0})
-            # t2.start()
+            weap, posi, dire, exp_dist = self.player_list[0].weapon, self.player_list[0].position, self.player_list[0].direction, self.player_list[0].expand_dist#得在线程开始前捕获这些值，否则会被修改
+            t2 = threading.Thread(target=self.kb_useweapon, kwargs={'pid':0, 'weap':copy.deepcopy(weap), 'posi':copy.deepcopy(posi), 'dire':copy.deepcopy(dire), 'exp_dist':copy.deepcopy(exp_dist)})#注意要用深拷贝
+            t2.start()
             # t2.join()
 
-            self.kb_useweapon(pid=0)
+            # self.kb_useweapon(pid=0)
             
         
         
