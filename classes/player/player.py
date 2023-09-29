@@ -10,8 +10,9 @@ class Player:
         4.direction
         '''
         self.position = np.array([1,1,0], dtype=np.int32)#x y z    z之后可能有用
-        self.hp = 0
-        self.weapon = None
+        self.hp = 10
+        self.weapon = 'boom'
+        self.expand_dist = 1
         self.direction = 0 #0:上；  1：右；  2：下； 3：左
 
         
@@ -65,3 +66,10 @@ class Player:
         self.position[1] += 1
         self.direction = 1
 
+
+    # #use weapon
+    # def use_weapon(self,):
+    #     if self.weapon == 'boom':
+    #         return self.position
+    #     else:
+    #         return None
