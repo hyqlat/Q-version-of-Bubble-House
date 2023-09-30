@@ -79,6 +79,7 @@ class MyWindos(QMainWindow):
         painter.setBrush(COLOR_LIST['player{}'.format(0)])  
         painter.drawRect(self.player_list[0].position[1] * self.colelem_size, self.player_list[0].position[0] * self.rowelem_size, self.colelem_size, self.rowelem_size)
 
+        self.gmap_class.set_posi_map(self.player_list[0].position, 10)#玩家1位置
 
         painter.end()
 
@@ -92,6 +93,7 @@ class MyWindos(QMainWindow):
                 self.change_posicolor(ori_posi, COLOR_LIST['path'])#改旧位置颜色  #有炸弹也不能改色吧 TODO:
                 # with lock_changecolor:
                 self.change_posicolor(self.player_list[0].position, COLOR_LIST['player{}'.format(pid)])#改新位置颜色
+                
 
 
     def kb_useweapon(self, pid, weap, posi, dire, exp_dist):
