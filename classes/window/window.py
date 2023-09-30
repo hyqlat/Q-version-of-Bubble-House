@@ -89,10 +89,22 @@ class MyWindos(QMainWindow):
     def kb_move_player(self, pid, cmd):
         with lock_changecolor:
             ori_posi = self.player_list[pid].move(self.gmap_class.gmap, cmd)
+            curr_posi = self.player_list[pid].position
             if ori_posi is not None:
-                self.change_posicolor(ori_posi, COLOR_LIST['path'])#改旧位置颜色  #有炸弹也不能改色吧 TODO:
+                # print('\n\n',self.gmap_class.gmap[curr_posi[0], curr_posi[1]], '\n\n')
+                if self.gmap_class.gmap[ori_posi[0], ori_posi[1]] == 2:   
+                    color_temp = COLOR_LIST['setboom']
+                else:
+                    color_temp = COLOR_LIST['path']
+                    self.gmap_class.set_posi_map(ori_posi, 1)#普通路
+                self.change_posicolor(ori_posi, color_temp)#改旧位置颜色  #有炸弹也不能改色吧 TODO:
+
                 # with lock_changecolor:
-                self.change_posicolor(self.player_list[0].position, COLOR_LIST['player{}'.format(pid)])#改新位置颜色
+                # if self.gmap_class.gmap[curr_posi[0], curr_posi[1]] != 3:
+                self.change_posicolor(curr_posi, COLOR_LIST['player{}'.format(pid)])#改新位置颜色
+                if self.gmap_class.gmap[curr_posi[0], curr_posi[1]] != 2:
+                    pid_t = 10 if pid == 0 else 11
+                    self.gmap_class.set_posi_map(self.player_list[0].position, pid_t)#玩家1位置
                 
 
 
@@ -110,6 +122,7 @@ class MyWindos(QMainWindow):
             coor1 = posi + (j+1) * offset
             if (coor1[0] > 0) and (self.gmap_class.gmap[coor1[0], coor1[1]] == 1):
                 self.change_posicolor(coor1, color)
+                self.gmap_class.set_posi_map(coor1, 3)#booming
                 rec_boom_posi.append([coor1[0], coor1[1]])
 
         offset = np.array([1,0,0], dtype=np.int32)
@@ -117,6 +130,7 @@ class MyWindos(QMainWindow):
             coor1 = posi + (j+1) * offset
             if (coor1[0] < (self.gmap_class.gmap.shape[0]-1)) and (self.gmap_class.gmap[coor1[0], coor1[1]] == 1):
                 self.change_posicolor(coor1, color)
+                self.gmap_class.set_posi_map(coor1, 3)#booming
                 rec_boom_posi.append([coor1[0], coor1[1]])
 
         offset = np.array([0,-1,0], dtype=np.int32)
@@ -124,6 +138,7 @@ class MyWindos(QMainWindow):
             coor1 = posi + (j+1) * offset
             if (coor1[1] > 0) and (self.gmap_class.gmap[coor1[0], coor1[1]] == 1):
                 self.change_posicolor(coor1, color)
+                self.gmap_class.set_posi_map(coor1, 3)#booming
                 rec_boom_posi.append([coor1[0], coor1[1]])
 
         offset = np.array([0,1,0], dtype=np.int32)
@@ -131,6 +146,7 @@ class MyWindos(QMainWindow):
             coor1 = posi + (j+1) * offset
             if (coor1[1] < (self.gmap_class.gmap.shape[1]-1)) and (self.gmap_class.gmap[coor1[0], coor1[1]] == 1):
                 self.change_posicolor(coor1, color)
+                self.gmap_class.set_posi_map(coor1, 3)#booming
                 rec_boom_posi.append([coor1[0], coor1[1]])
 
         return rec_boom_posi
@@ -139,19 +155,23 @@ class MyWindos(QMainWindow):
     def weap_boom(self, posi, pid, expand_dist):
         with lock_changecolor:
             self.change_posicolor(posi, COLOR_LIST['setboom'])#中心点放置炸弹
+            self.gmap_class.set_posi_map(posi, 2)#zhadan
         time.sleep(1)
         with lock_changecolor:
             rec_boom_posi = self.booming_color(posi, expand_dist, COLOR_LIST['booming'])#爆
+
         # print('boom!!!!', posi)
         time.sleep(0.5)
-
         
         for posi_recover in rec_boom_posi:#不能删玩家在的颜色啊，线程通信 TODO:必须原子操作
             ##临界区
             with lock_changecolor:
-                p1_curr_posi = self.player_list[0].position
-                if (p1_curr_posi[0] != posi_recover[0]) or (p1_curr_posi[1] != posi_recover[1]):
-                    self.change_posicolor(posi_recover, COLOR_LIST['path'])
+                # if (p1_curr_posi[0] != posi_recover[0]) or (p1_curr_posi[1] != posi_recover[1]):
+                # if self.gmap_class.gmap[posi_recover[0],posi_recover[1]] != 2:
+                self.change_posicolor(posi_recover, COLOR_LIST['path'])
+                # if self.gmap_class.gmap[posi_recover[0],posi_recover[1]] != 3:
+                self.gmap_class.set_posi_map(posi_recover, 1)#普通路位置
+
             ##
 
         # self.booming_color(posi, expand_dist, COLOR_LIST['path'])#恢复原来路径
